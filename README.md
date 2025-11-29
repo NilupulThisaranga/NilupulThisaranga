@@ -23,7 +23,7 @@
 
 - 💬 Ask me about **Java, C, C++, Html, and Css.**
 
-- 👩‍💻 All of my projects are available at <a href="https://github.com/nilupulthisaranga?tab=repositories">HERE!</a>
+- 👩‍💻 All of my projects are available at <a href="https://nilupulthisaranga.netlify.app">HERE!</a>
 
 - 📝 I regularly write articles on <a href="https://medium.com/@nilupulthisaranga">medium.com</a>
 
