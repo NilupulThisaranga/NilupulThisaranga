@@ -8,8 +8,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Generate snake
         uses: Platane/snk/svg-only@v3
         with:
@@ -17,8 +19,8 @@ jobs:
           outputs: |
             assets/snake.svg
 
-      - name: Push snake to repo
+      - name: Commit snake
         uses: EndBug/add-and-commit@v9
         with:
           add: "assets/snake.svg"
-          message: "update snake animation"
+          message: "chore: update snake"
