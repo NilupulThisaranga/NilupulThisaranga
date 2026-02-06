@@ -67,9 +67,6 @@
   <a href="https://www.instagram.com/n3edirisinghe">
     <img src="https://img.shields.io/badge/Instagram-Follow-E4405F?style=for-the-badge&logo=instagram&logoColor=white"/>
   </a>
-  <a href="https://www.youtube.com/c/nilupulthisaranga8543">
-    <img src="https://img.shields.io/badge/YouTube-Subscribe-FF0000?style=for-the-badge&logo=youtube&logoColor=white"/>
-  </a>
   <a href="https://www.hackerrank.com/cit_23_02_0021">
     <img src="https://img.shields.io/badge/HackerRank-Profile-2EC866?style=for-the-badge&logo=hackerrank&logoColor=white"/>
   </a>
