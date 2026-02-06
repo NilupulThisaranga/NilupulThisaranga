@@ -7,7 +7,7 @@
 
 <img align="left" alt="coding-gif" width="180" src="https://media.giphy.com/media/anywqD5u93KuCtpPfH/giphy.gif" />
 
-<h1 align="center">Hi 👋, I'm Nilupul Thisaranga</h1>
+<h1 align="center">
 
 <p align="center">
   <a href="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&pause=1000&center=true&vCenter=true&width=760&lines=Cybersecurity+Undergraduate;Full-Stack+Developer+|+Cloud+|+DevOps;Building+Secure+Apps+%26+Learning+Everyday">
