@@ -3,8 +3,8 @@
 <h1 align="center">Hi 👋, I'm Nilupul Thisaranga</h1>
 
 <p align="center">
-  <a href="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&pause=1000&center=true&vCenter=true&width=760&lines=Cybersecurity+Undergraduate;Full-Stack+Developer+%7C+Cloud+%7C+DevOps;Building+Secure+Apps+%26+Learning+Everyday">
-    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&pause=1000&center=true&vCenter=true&width=760&lines=Cybersecurity+Undergraduate;Full-Stack+Developer+%7C+Cloud+%7C+DevOps;Building+Secure+Apps+%26+Learning+Everyday" />
+  <a href="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&pause=1000&center=true&vCenter=true&width=760&lines=Cybersecurity+Undergraduate;Full-Stack+Developer+|+Cloud+|+DevOps;Building+Secure+Apps+%26+Learning+Everyday">
+    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&pause=1000&center=true&vCenter=true&width=760&lines=Cybersecurity+Undergraduate;Full-Stack+Developer+|+Cloud+|+DevOps;Building+Secure+Apps+%26+Learning+Everyday" />
   </a>
 </p>
 
@@ -15,6 +15,7 @@
 ---
 
 ## 🧑‍💻 About Me
+
 - 🎓 IT Undergraduate at **SLTC Research University**
 - 🔐 Reading for a **Cyber Security Degree**
 - 🌐 Portfolio: https://nilupulthisaranga.netlify.app
@@ -25,40 +26,55 @@
 
 ## 🧠 Skills
 
-**Programming:** C, C++, Java, JavaScript, PHP, Python  
-**Frontend:** React, HTML, CSS  
-**Backend:** Node.js  
-**Mobile:** Android, Flutter  
-**Databases:** MongoDB, MySQL, Supabase  
-**Cloud/DevOps:** AWS  
-**BaaS:** Firebase  
-**Tools:** Figma  
+💻 Programming  
+`C` `C++` `Java` `JavaScript` `PHP` `Python`
+
+🎨 Frontend  
+`React` `HTML` `CSS`
+
+⚙ Backend  
+`Node.js`
+
+📱 Mobile  
+`Android` `Flutter`
+
+🗄 Databases  
+`MongoDB` `MySQL` `Supabase`
+
+☁ Cloud / DevOps  
+`AWS`
+
+🔌 BaaS  
+`Firebase`
+
+🧰 Tools  
+`Figma`
 
 ---
 
 ## 🔗 Connect With Me
 
-<p align="left">
+<p align="center">
   <a href="https://www.linkedin.com/in/nilupul-thisaranga-edirisinghe">
-    <img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=flat&logo=linkedin&logoColor=white"/>
+    <img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white"/>
   </a>
   <a href="https://www.facebook.com/thisaranga.edirisinghe?mibextid=ZbWKwL">
-    <img src="https://img.shields.io/badge/Facebook-Follow-1877F2?style=flat&logo=facebook&logoColor=white"/>
+    <img src="https://img.shields.io/badge/Facebook-Follow-1877F2?style=for-the-badge&logo=facebook&logoColor=white"/>
   </a>
-  <a href="https://www.instagram.com/n3edirisinghe?igsh=ajNiMHh5c3ZtN2lx">
-    <img src="https://img.shields.io/badge/Instagram-Follow-E4405F?style=flat&logo=instagram&logoColor=white"/>
+  <a href="https://www.instagram.com/n3edirisinghe">
+    <img src="https://img.shields.io/badge/Instagram-Follow-E4405F?style=for-the-badge&logo=instagram&logoColor=white"/>
   </a>
   <a href="https://www.youtube.com/c/nilupulthisaranga8543">
-    <img src="https://img.shields.io/badge/YouTube-Subscribe-FF0000?style=flat&logo=youtube&logoColor=white"/>
+    <img src="https://img.shields.io/badge/YouTube-Subscribe-FF0000?style=for-the-badge&logo=youtube&logoColor=white"/>
   </a>
   <a href="https://www.hackerrank.com/cit_23_02_0021">
-    <img src="https://img.shields.io/badge/HackerRank-Profile-2EC866?style=flat&logo=hackerrank&logoColor=white"/>
+    <img src="https://img.shields.io/badge/HackerRank-Profile-2EC866?style=for-the-badge&logo=hackerrank&logoColor=white"/>
   </a>
 </p>
 
 ---
 
-## 📊 GitHub Metrics (Stats • Languages • Streak • Achievements)
+## 📊 GitHub Metrics
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/NilupulThisaranga/NilupulThisaranga/main/github-metrics.svg" />
@@ -66,10 +82,10 @@
 
 ---
 
-## 🐍 Contribution Snake
+## 🐍 Contribution Snake (Cyber Neon)
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/NilupulThisaranga/NilupulThisaranga/main/assets/snake.svg" alt="snake" />
+  <img src="https://raw.githubusercontent.com/NilupulThisaranga/NilupulThisaranga/output/snake.svg" />
 </p>
 
 ---
@@ -77,13 +93,14 @@
 ## 📈 Activity Graph
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/NilupulThisaranga/NilupulThisaranga/main/assets/activity-graph.svg" alt="activity graph" />
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=NilupulThisaranga&theme=tokyo-night" />
 </p>
 
 ---
 
 ## ✍️ Latest Medium Posts
 <!-- MEDIUM:START -->
+Coming Soon...
 <!-- MEDIUM:END -->
 
 ---
