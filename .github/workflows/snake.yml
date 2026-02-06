@@ -1,4 +1,4 @@
-name: Generate Snake
+name: Generate Snake (Cyber Neon)
 
 on:
   schedule:
@@ -9,18 +9,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate snake
-        uses: Platane/snk/svg-only@v3
+      - name: Generate Neon Snake
+        uses: Platane/snk@v3
         with:
           github_user_name: NilupulThisaranga
           outputs: |
-            assets/snake.svg
+            assets/cyber-snake.svg?color_snake=00ffff&color_dots=#0f172a,#00ff9f,#39ff14,#00ffff,#7df9ff
+            assets/cyber-snake.gif?color_snake=00ffff&color_dots=#0f172a,#00ff9f,#39ff14,#00ffff,#7df9ff
 
-      - name: Commit snake
+      - name: Commit Snake Files
         uses: EndBug/add-and-commit@v9
         with:
-          add: "assets/snake.svg"
-          message: "chore: update snake"
+          add: "assets/cyber-snake.svg assets/cyber-snake.gif"
+          message: "update cyber neon snake"
