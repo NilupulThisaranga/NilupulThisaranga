@@ -21,6 +21,7 @@
 - 🌐 Portfolio: https://nilupulthisaranga.netlify.app
 - ✍️ Medium: https://medium.com/@nilupulthisaranga
 - 📫 Email: **10nilupulthisaranga@gmail.com**
+- [![LinkedIn Badge](https://img.shields.io)](https://www.linkedin.com/in/nilupul-thisaranga-edirisinghe) 
 
 ---
 
@@ -49,7 +50,7 @@
 
 🧰 Tools  
 `Figma`
-https://www.linkedin.com/in/nilupul-thisaranga-edirisinghe
+
 
 ---
 
