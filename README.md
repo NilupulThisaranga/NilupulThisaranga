@@ -23,7 +23,7 @@
 
 ---
 
- 🧑‍💻 About Me
+## 🧑‍💻 About Me
 
 - 🎓 IT Undergraduate at **SLTC Research University**
 - 🔐 Reading for a **Cyber Security Degree**
