@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=100&section=footer" width="100%"/>
+</div>
+
 <img align="left" alt="coding-gif" width="180" src="https://media.giphy.com/media/anywqD5u93KuCtpPfH/giphy.gif" />
 
 <h1 align="center">Hi 👋, I'm Nilupul Thisaranga</h1>
