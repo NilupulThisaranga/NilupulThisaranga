@@ -19,9 +19,10 @@
 - 🎓 IT Undergraduate at **SLTC Research University**
 - 🔐 Reading for a **Cyber Security Degree**
 - 🌐 Portfolio: https://nilupulthisaranga.netlify.app
+- ℹ️ Linkedin:https://www.linkedin.com/in/nilupul-thisaranga-edirisinghe
 - ✍️ Medium: https://medium.com/@nilupulthisaranga
 - 📫 Email: **10nilupulthisaranga@gmail.com**
-- [![LinkedIn Badge](https://img.shields.io)](https://www.linkedin.com/in/nilupul-thisaranga-edirisinghe) 
+  
 
 ---
 
