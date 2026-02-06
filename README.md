@@ -98,11 +98,4 @@
 
 ---
 
-## ✍️ Latest Medium Posts
-<!-- MEDIUM:START -->
-Coming Soon...
-<!-- MEDIUM:END -->
 
----
-
-⭐ From [NilupulThisaranga](https://github.com/NilupulThisaranga)
