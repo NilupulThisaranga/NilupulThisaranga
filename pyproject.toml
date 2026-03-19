@@ -1,0 +1,98 @@
+[build-system]
+requires = ["hatchling>=1.24.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fastapi-mpp"
+version = "0.2.0"
+description = "Add Machine Payments Protocol (MPP) support to FastAPI endpoints in a few lines."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "fastapi-mpp contributors" }
+]
+keywords = [
+  "fastapi",
+  "mpp",
+  "machine-payments-protocol",
+  "ai-agents",
+  "payments"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Framework :: FastAPI",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Software Development :: Libraries :: Python Modules"
+]
+dependencies = [
+  "fastapi>=0.115.0",
+  "pydantic>=2.7.0",
+  "httpx>=0.28.0"
+]
+
+[project.optional-dependencies]
+dotenv = [
+  "python-dotenv>=1.0.0"
+]
+tempo = [
+  "pympp>=0.4.1"
+]
+stripe = [
+  "stripe>=11.0.0"
+]
+dev = [
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.24.0",
+  "ruff>=0.8.0",
+  "mypy>=1.10.0",
+  "uvicorn[standard]>=0.35.0"
+]
+all = [
+  "python-dotenv>=1.0.0",
+  "pympp>=0.4.1",
+  "stripe>=11.0.0"
+]
+
+[project.urls]
+Homepage = "https://github.com/your-org/fastapi-mpp"
+Repository = "https://github.com/your-org/fastapi-mpp"
+Issues = "https://github.com/your-org/fastapi-mpp/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mpp_fastapi"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/mpp_fastapi",
+  "examples",
+  "tests",
+  "README.md",
+  "LICENSE",
+  "pyproject.toml"
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_return_any = true
