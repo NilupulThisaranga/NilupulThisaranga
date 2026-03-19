@@ -7,8 +7,9 @@
 
 Machine Payments Protocol middleware for FastAPI.
 
-Version `v0.2` hardens receipt validation, replay protection, session binding, and
-HTTP authentication semantics. This project is still beta.
+Version `v0.3` hardens receipt validation, replay protection, session binding, and
+adds pluggable storage backends with Redis support for production deployments.
+This project is still beta.
 
 ## Installation
 
@@ -27,22 +28,37 @@ Optional extras:
 
 ```bash
 pip install "fastapi-mpp[dotenv]"
+pip install "fastapi-mpp[redis]"
 pip install "fastapi-mpp[stripe]"
 pip install "fastapi-mpp[all]"
 ```
+
+## System Prerequisites
+
+- `RedisStore` is designed for Redis `6.2+` where `GETDEL` is available for atomic
+    one-time challenge consumption.
+- For older Redis versions, the library falls back to an atomic Lua script, but
+    Redis `6.2+` is strongly recommended for production compatibility and operations.
 
 ## Usage
 
 ### Server setup
 
 ```python
+import os
+
 from fastapi import FastAPI, Request
 from mpp_fastapi.core import MPP
+from mpp_fastapi.stores import RedisStore
 
 app = FastAPI()
 
 # Production mode (default): requires receipt_validator or fastapi-mpp[tempo].
-mpp = MPP()
+mpp = MPP(
+    store=RedisStore(
+        redis_url=os.getenv("MPP_REDIS_URL", "redis://localhost:6379/0"),
+    )
+)
 
 @app.get("/premium")
 @mpp.charge(amount="0.05", currency="USD", description="Premium data")
@@ -50,7 +66,7 @@ async def premium(request: Request):
     return {"data": "paid content"}
 ```
 
-### HTTP flow (v0.2 hardened)
+### HTTP flow (v0.3 hardened)
 
 1. Client calls endpoint without credential.
 2. Server responds `402 Payment Required` with:
@@ -150,7 +166,8 @@ Response on success:
 
 ## Design Notes
 
-- In-memory stores are intentionally simple for `v0.2`; Redis-backed stores are planned.
+- Storage is abstracted via `BaseStore`; default `InMemoryStore` is single-process only.
+- `RedisStore` is available for multi-worker production deployments.
 - Header size limit is enforced (`8KB`) for authorization and receipt headers.
 - A basic in-memory challenge rate limiter is enabled (default `10` challenges/IP/minute).
 

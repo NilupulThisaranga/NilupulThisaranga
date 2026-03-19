@@ -27,21 +27,19 @@ from .dependencies import (
     get_wallet_config,
 )
 from .exceptions import (
+    ChallengeRateLimitError,
     IdempotencyConflictError,
     InvalidReceiptError,
     PaymentRequiredError,
     SessionBudgetExceededError,
     SessionNotFoundError,
 )
-from .types import MPPChallenge, MPPChargeOptions, MPPProvider, MPPReceipt, MPPSession
+from .stores import BaseStore, InMemoryStore
+from .types import MPPChallenge, MPPChargeOptions, MPPReceipt
 
 RouteCallable = Callable[..., Awaitable[Any]]
 ReceiptValidator = Callable[[MPPReceipt, MPPChargeOptions, Request], Awaitable[None] | None]
 logger = logging.getLogger(__name__)
-
-
-class ChallengeRateLimitError(Exception):
-    """Raised when challenge issuance crosses in-memory per-IP limits."""
 
 
 class InMemoryIdempotencyStore:
@@ -61,158 +59,6 @@ class InMemoryIdempotencyStore:
             raise IdempotencyConflictError(
                 "This Idempotency-Key was already used with another receipt"
             )
-
-
-class InMemorySessionStore:
-    """In-memory budget session store (replaceable with Redis)."""
-
-    def __init__(self) -> None:
-        self._sessions: dict[str, MPPSession] = {}
-
-    def upsert_authorized_session(
-        self,
-        *,
-        session_id: str,
-        provider: MPPProvider,
-        currency: str,
-        route_scope: str,
-        source: str | None,
-        expires_at: datetime,
-        max_amount: Decimal,
-        metadata: dict[str, Any] | None = None,
-    ) -> MPPSession:
-        existing = self._sessions.get(session_id)
-        if existing is not None:
-            return existing
-
-        session = MPPSession(
-            session_id=session_id,
-            provider=provider,
-            currency=currency,
-            route_scope=route_scope,
-            source=source,
-            expires_at=expires_at,
-            max_amount=str(max_amount),
-            metadata=metadata or {},
-        )
-        self._sessions[session_id] = session
-        return session
-
-    def get(self, session_id: str) -> MPPSession:
-        try:
-            return self._sessions[session_id]
-        except KeyError as exc:
-            raise SessionNotFoundError(f"Unknown MPP session: {session_id}") from exc
-
-    def consume(self, *, session_id: str, amount: Decimal, currency: str) -> MPPSession:
-        session = self.get(session_id)
-
-        if session.expires_at is not None and session.expires_at <= datetime.now(timezone.utc):
-            raise SessionBudgetExceededError("Session expired")
-
-        if session.currency.upper() != currency.upper():
-            raise SessionBudgetExceededError("Session currency mismatch")
-
-        if session.remaining_amount_decimal < amount:
-            raise SessionBudgetExceededError("Session budget exceeded")
-
-        session.spent_amount = str(session.spent_amount_decimal + amount)
-        self._sessions[session_id] = session
-        return session
-
-
-class InMemoryReceiptReplayStore:
-    """Tracks consumed receipts until expiry to mitigate replay attacks."""
-
-    def __init__(self) -> None:
-        self._consumed: dict[str, float] = {}
-
-    def consume_once(self, *, receipt_key: str, expires_at: datetime) -> None:
-        now_ts = time.time()
-        self._prune(now_ts)
-        expires_ts = expires_at.timestamp()
-
-        if expires_ts <= now_ts:
-            raise InvalidReceiptError("Receipt is expired")
-
-        known = self._consumed.get(receipt_key)
-        if known is not None and known > now_ts:
-            raise IdempotencyConflictError("Receipt was already consumed")
-
-        self._consumed[receipt_key] = expires_ts
-
-    def _prune(self, now_ts: float) -> None:
-        stale_keys = [key for key, exp_ts in self._consumed.items() if exp_ts <= now_ts]
-        for stale in stale_keys:
-            self._consumed.pop(stale, None)
-
-
-class InMemoryChallengeStore:
-    """Tracks issued challenges so receipts are bound to prior 402 challenges."""
-
-    def __init__(self) -> None:
-        self._issued: dict[str, tuple[float, dict[str, Any]]] = {}
-
-    def issue(self, *, challenge: MPPChallenge) -> None:
-        self._issued[challenge.challenge_id] = (
-            challenge.expires_at.timestamp(),
-            {
-                "method": challenge.method,
-                "path": challenge.path,
-                "amount": challenge.amount,
-                "currency": challenge.currency,
-            },
-        )
-
-    def consume_and_validate(
-        self,
-        *,
-        challenge_id: str,
-        method: str,
-        path: str,
-        amount: Decimal,
-        currency: str,
-    ) -> None:
-        now_ts = time.time()
-        self._prune(now_ts)
-
-        issued = self._issued.pop(challenge_id, None)
-        if issued is None:
-            raise InvalidReceiptError("Unknown or expired challenge id")
-
-        _, expected = issued
-        if expected["method"] != method or expected["path"] != path:
-            raise InvalidReceiptError("Receipt challenge is bound to another route")
-        if Decimal(expected["amount"]) != amount:
-            raise InvalidReceiptError("Receipt challenge amount mismatch")
-        if str(expected["currency"]).upper() != currency.upper():
-            raise InvalidReceiptError("Receipt challenge currency mismatch")
-
-    def _prune(self, now_ts: float) -> None:
-        stale_keys = [key for key, (exp_ts, _) in self._issued.items() if exp_ts <= now_ts]
-        for stale in stale_keys:
-            self._issued.pop(stale, None)
-
-
-class InMemoryChallengeRateLimiter:
-    """Simple fixed-window challenge rate limiter (per IP/minute)."""
-
-    def __init__(self, *, max_per_minute: int = 10) -> None:
-        self.max_per_minute = max_per_minute
-        self._state: dict[str, tuple[int, int]] = {}
-
-    def assert_within_limit(self, *, client_ip: str) -> None:
-        minute_bucket = int(time.time() // 60)
-        bucket, count = self._state.get(client_ip, (minute_bucket, 0))
-
-        if bucket != minute_bucket:
-            self._state[client_ip] = (minute_bucket, 1)
-            return
-
-        if count >= self.max_per_minute:
-            raise ChallengeRateLimitError("Too many payment challenges from this IP")
-
-        self._state[client_ip] = (bucket, count + 1)
 
 
 class HMACSessionSigner:
@@ -259,11 +105,8 @@ class MPP:
         *,
         wallet_config: WalletConfig | None = None,
         receipt_validator: ReceiptValidator | None = None,
-        session_store: InMemorySessionStore | None = None,
+        store: BaseStore | None = None,
         idempotency_store: InMemoryIdempotencyStore | None = None,
-        replay_store: InMemoryReceiptReplayStore | None = None,
-        challenge_store: InMemoryChallengeStore | None = None,
-        challenge_rate_limiter: InMemoryChallengeRateLimiter | None = None,
         protocol_version: str = "2026-03-19",
         realm: str = "MyAPI",
         allow_legacy_headers: bool = True,
@@ -271,6 +114,7 @@ class MPP:
         weak_debug_validation: bool = False,
         session_ttl_seconds: int = 900,
         challenge_ttl_seconds: int = 300,
+        challenge_rate_limit_per_minute: int = 10,
     ) -> None:
         self.wallet_config = wallet_config or get_wallet_config()
         self.allow_legacy_headers = allow_legacy_headers
@@ -279,14 +123,12 @@ class MPP:
         self.realm = realm
         self.session_ttl_seconds = session_ttl_seconds
         self.challenge_ttl_seconds = challenge_ttl_seconds
+        self.challenge_rate_limit_per_minute = challenge_rate_limit_per_minute
 
         self.receipt_validator = receipt_validator or _load_default_tempo_validator()
 
-        self.session_store = session_store or InMemorySessionStore()
+        self.store = store or InMemoryStore()
         self.idempotency_store = idempotency_store or InMemoryIdempotencyStore()
-        self.replay_store = replay_store or InMemoryReceiptReplayStore()
-        self.challenge_store = challenge_store or InMemoryChallengeStore()
-        self.challenge_rate_limiter = challenge_rate_limiter or InMemoryChallengeRateLimiter()
         self.protocol_version = protocol_version
 
         self._session_signer: HMACSessionSigner | None = None
@@ -310,10 +152,12 @@ class MPP:
                 "server-side auto-retry is not implemented."
             )
 
-        logger.warning(
-            "Using in-memory replay/session stores. This is not horizontally safe; "
-            "use Redis in production."
-        )
+        if isinstance(self.store, InMemoryStore):
+            logger.warning(
+                "[SECURITY WARNING] MPP is running with InMemoryStore. "
+                "Replay/session/challenge state is process-local and unsafe for multi-worker "
+                "or multi-instance production deployments. Configure RedisStore before shipping."
+            )
 
     def charge(
         self,
@@ -428,7 +272,7 @@ class MPP:
         session_header = _extract_session_header(request) or options.session_id
         if session_header:
             try:
-                self._consume_session(
+                await self._consume_session(
                     request=request,
                     options=options,
                     session_token=session_header,
@@ -444,8 +288,11 @@ class MPP:
         receipt = _extract_receipt_or_none(request, allow_legacy_headers=self.allow_legacy_headers)
         if receipt is None:
             client_ip = _extract_client_ip(request)
-            self.challenge_rate_limiter.assert_within_limit(client_ip=client_ip)
-            raise PaymentRequiredError(self._build_402_challenge(request=request, options=options))
+            await self.store.assert_within_challenge_rate_limit(
+                client_ip=client_ip,
+                max_per_minute=self.challenge_rate_limit_per_minute,
+            )
+            raise PaymentRequiredError(await self._build_402_challenge(request=request, options=options))
 
         await self._validate_receipt(receipt=receipt, options=options, request=request)
         request.state._mpp_receipt = receipt
@@ -461,7 +308,7 @@ class MPP:
         receipt_expires_at = receipt.expires_at or (
             datetime.now(timezone.utc) + timedelta(seconds=self.challenge_ttl_seconds)
         )
-        self.replay_store.consume_once(receipt_key=replay_key, expires_at=receipt_expires_at)
+        await self.store.consume_receipt_once(receipt_key=replay_key, expires_at=receipt_expires_at)
 
         if options.session:
             if self._session_signer is None:
@@ -479,7 +326,7 @@ class MPP:
                     max_amount=authorized_budget,
                     source=source,
                 )
-                self.session_store.upsert_authorized_session(
+                await self.store.upsert_authorized_session(
                     session_id=session_id,
                     provider=receipt.provider,
                     currency=currency,
@@ -490,7 +337,7 @@ class MPP:
                     max_amount=authorized_budget,
                     metadata={"receipt_id": receipt.id},
                 )
-                self.session_store.consume(
+                await self.store.consume_session_budget(
                     session_id=session_id,
                     amount=requested_amount,
                     currency=currency,
@@ -523,7 +370,7 @@ class MPP:
             if not challenge_id:
                 raise InvalidReceiptError("Receipt must include challenge_id")
 
-            self.challenge_store.consume_and_validate(
+            await self.store.consume_and_validate_challenge(
                 challenge_id=challenge_id,
                 method=request.method,
                 path=request.url.path,
@@ -545,7 +392,12 @@ class MPP:
             request.url.path,
         )
 
-    def _build_402_challenge(self, *, request: Request, options: MPPChargeOptions) -> dict[str, Any]:
+    async def _build_402_challenge(
+        self,
+        *,
+        request: Request,
+        options: MPPChargeOptions,
+    ) -> dict[str, Any]:
         providers = ["tempo", "stripe"]
         if options.provider is not None:
             providers = [options.provider]
@@ -580,7 +432,7 @@ class MPP:
             }
 
         challenge.hints = payment_hints
-        self.challenge_store.issue(challenge=challenge)
+        await self.store.issue_challenge(challenge=challenge)
 
         return challenge.model_dump(mode="json")
 
@@ -630,7 +482,7 @@ class MPP:
         }
         return self._session_signer.encode(claims)
 
-    def _consume_session(
+    async def _consume_session(
         self,
         *,
         request: Request,
@@ -656,7 +508,7 @@ class MPP:
         if options.provider is not None and str(claims.get("prv", "")) != options.provider:
             raise SessionBudgetExceededError("Session token provider mismatch")
 
-        self.session_store.consume(
+        await self.store.consume_session_budget(
             session_id=session_token,
             amount=amount,
             currency=currency,

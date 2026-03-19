@@ -31,3 +31,7 @@ class SessionBudgetExceededError(MPPError):
 
 class IdempotencyConflictError(MPPError):
     """Raised when the same idempotency key is reused with different payment data."""
+
+
+class ChallengeRateLimitError(MPPError):
+    """Raised when too many payment challenges are requested from one source."""

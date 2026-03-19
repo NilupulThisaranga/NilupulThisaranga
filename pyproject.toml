@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "fastapi-mpp"
-version = "0.2.1"
+version = "0.3.0"
 description = "Add Machine Payments Protocol (MPP) support to FastAPI endpoints in a few lines."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -47,6 +47,9 @@ tempo = [
 stripe = [
   "stripe>=11.0.0"
 ]
+redis = [
+  "redis>=5.0.0"
+]
 dev = [
   "pytest>=8.0.0",
   "pytest-asyncio>=0.24.0",
@@ -57,7 +60,8 @@ dev = [
 all = [
   "python-dotenv>=1.0.0",
   "pympp>=0.4.1",
-  "stripe>=11.0.0"
+  "stripe>=11.0.0",
+  "redis>=5.0.0"
 ]
 
 [project.urls]
