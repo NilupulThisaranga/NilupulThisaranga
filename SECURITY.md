@@ -80,7 +80,7 @@ Assumptions:
 
 Please report security issues through GitHub:
 
-- Issues: https://github.com/your-org/fastapi-mpp/issues
+- Issues: https://github.com/SylvainCostes/fastapi-mpp/issues
 
 Recommended report contents:
 

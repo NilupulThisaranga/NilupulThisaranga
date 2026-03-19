@@ -3,7 +3,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/fastapi-mpp.svg)](https://pypi.org/project/fastapi-mpp/)
 [![Python versions](https://img.shields.io/pypi/pyversions/fastapi-mpp.svg)](https://pypi.org/project/fastapi-mpp/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/your-org/fastapi-mpp?style=social)](https://github.com/your-org/fastapi-mpp)
+[![GitHub stars](https://img.shields.io/github/stars/SylvainCostes/fastapi-mpp?style=social)](https://github.com/SylvainCostes/fastapi-mpp)
 
 Machine Payments Protocol middleware for FastAPI.
 
